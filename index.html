@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Parking System</title>
+  <link rel="icon" type="image/png" href="image.png">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <video autoplay muted loop id="bg-vdo">
+    <source src="3.mp4" type="video/mp4" />
+  </video>
+
+  <div id="loginPage">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div id="toast"></div>
+
+  <div id="resetModal" class="modal">
+    <div class="modal-content">
+      <h2>⚠️ Confirm Reset</h2>
+      <p>Are you sure you want to clear all parking data? This action cannot be undone.</p>
+      <div class="modal-buttons">
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="confirm-btn" onclick="confirmReset()">Yes, Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="beep" src="beep.mpeg"></audio>
+
+  <div id="app" style="display:none;">
+    <div class="sidebar">
+      <h2><i class="fa-solid fa-car"></i> Parking</h2>
+      <ul>
+        <li class="active" onclick="showSection('dashboard', this)">Dashboard</li>
+        <li onclick="showSection('entry', this)">Entry</li>
+        <li onclick="showSection('exit', this)">Exit</li>
+        <li onclick="showSection('search', this)">Search</li>
+        <li onclick="showSection('verify', this)">Verify Slot</li>
+        <li onclick="showSection('findCar', this)">Find My Car</li>
+        <li onclick="showSection('history', this)">History</li>
+        <li onclick="logout()">Logout</li>
+      </ul>
+    </div>
+
+    <div class="main">
+      <section id="dashboard" class="section active">
+        <h1>Dashboard</h1>
+
+        <div class="cards">
+          <div class="card">Total: <span id="totalSlots">0</span></div>
+          <div class="card">Occupied: <span id="occupiedSlots">0</span></div>
+          <div class="card">Available: <span id="availableSlots">0</span></div>
+          <div class="card">VIP Slots: <span id="vipCount">0</span></div>
+          <div class="card">Total Earnings: ₹<span id="totalEarnings">0.00</span></div><!--total earning div-->
+          <div class="card">Today's Earnings: ₹<span id="dailyEarnings">0.00</span></div>
+          <div class="card">Repeat Vehicles Today: <span id="repeatVisits">0</span>
+          <br>
+          <small id="repeatVehicleList">None</small></div>
+        </div>
+
+        <div class="queue-wrapper">
+          <div class="queue-card">
+            <h3>Normal Queue</h3>
+            <ul id="normalQueueList"></ul>
+          </div>
+          <div class="queue-card">
+            <h3>VIP Queue</h3>
+            <ul id="vipQueueList"></ul>
+          </div>
+        </div>
+
+        <br />
+        <button class="reset-btn" onclick="resetSystem()">🔄 Reset System</button>
+
+        <div id="floorContainer"></div>
+      </section>
+
+      <section id="entry" class="section">
+        <h1>Vehicle Entry</h1>
+        <input id="vehicleNumber" placeholder="Vehicle Number" />
+        <select id="vehicleType">
+          <option value="normal">Normal</option>
+          <option value="vip">VIP</option>
+        </select>
+        <button onclick="handleEntry()">Park</button>
+        <button onclick="undo()">Undo</button>
+        <p id="entryMsg"></p>
+
+        <div id="assignedInfo" class="info-box"></div>
+      </section>
+
+      <section id="exit" class="section">
+        <h1>Vehicle Exit</h1>
+        <input id="exitVehicle" placeholder="Vehicle Number" />
+        <button onclick="handleExit()">Exit</button>
+        <button onclick="downloadPDF()">Download Slip</button>
+        <div id="receipt"></div>
+      </section>
+
+      <section id="search" class="section">
+        <h1>Search</h1>
+        <input id="searchVehicleInput" placeholder="Vehicle Number" />
+        <button onclick="handleSearch()">Search</button>
+        <p id="searchResult"></p>
+      </section>
+
+      <section id="verify" class="section">
+        <h1>Slot Verification</h1>
+        <input id="verifyVehicle" placeholder="Vehicle Number" />
+        <input id="actualFloor" type="number" min="1" placeholder="Actual Floor Number" />
+        <input id="actualSlot" type="number" min="1" placeholder="Actual Slot Number" />
+        <button onclick="verifySlot()">Verify</button>
+        <div id="verifyResult" class="info-box"></div>
+      </section>
+
+      <section id="findCar" class="section">
+        <h1>Find My Car</h1>
+        <input id="findVehicleInput" placeholder="Enter Vehicle Number" />
+        <button onclick="findMyCar()">Find</button>
+        <div id="findCarResult" class="info-box"></div>
+      </section>
+
+      <section id="history" class="section">
+        <h1>History</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Type</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="historyTable"></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
